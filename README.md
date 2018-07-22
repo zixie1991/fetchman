@@ -3,8 +3,10 @@
 
 基础组件
 
+```
 redis
 mongodb
+```
 
 ubuntu安装
 ```
@@ -14,6 +16,7 @@ sudo apt-get install -y mongodb
 
 关键数据结构
 
+```
 {'task':
     {'id': str,
      'url': str,
@@ -48,3 +51,4 @@ sudo apt-get install -y mongodb
     'save': str,
     }
 }
+```
