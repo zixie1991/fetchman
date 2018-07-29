@@ -36,7 +36,8 @@ sudo apt-get install -y mongodb
          },
      'process':
         {'callback': str,
-         'save': dict},
+         'save': dict
+         },
      'updatetime': int,
      },
  }
@@ -46,6 +47,7 @@ sudo apt-get install -y mongodb
     'original_url': str,
     'status_code': int,
     'headers': dict,
+    'cookies': dict,
     'content': str,
     'time': int,
     'save': str,
