@@ -16,6 +16,7 @@ build
 dist
 *.testbin
 *.bin
+*.log.*
 *.log
 
 # Editor temporaries

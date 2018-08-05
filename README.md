@@ -39,6 +39,19 @@ sudo apt-get install -y mongodb
          'save': dict
          },
      'updatetime': int,
+     'track':
+        {'fetch':
+            {'ok': True,
+             'status_code': 200,
+             'headers': dict,
+             'encoding': str,
+             'time': int
+            },
+         'process': 
+            {'follows': int,
+             'time': int
+            }
+        },
      },
  }
 
@@ -50,7 +63,7 @@ sudo apt-get install -y mongodb
     'cookies': dict,
     'content': str,
     'time': int,
-    'save': str,
+    'save': dict,
     }
 }
 ```

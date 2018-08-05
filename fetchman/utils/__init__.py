@@ -17,6 +17,8 @@ def create_message_queue(url):
     options = parse_dburl(url)
 
     if scheme == 'redismq':
+        options['name'] = options['db']
+        del options['db']
         message_queue = redismq.Queue(**options)
     elif scheme == 'rabbitmq':
         message_queue = rabbitmq.Queue(options['db'], url)
