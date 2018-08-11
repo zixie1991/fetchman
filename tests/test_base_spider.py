@@ -11,6 +11,7 @@ from fetchman.scheduler.base_scheduler import BaseScheduler
 from fetchman.downloader.base_downloader import BaseDownloader
 from fetchman.processor.base_processor import BaseProcessor
 from fetchman.pipeline.base_pipeline import BasePipeline
+from fetchman.pipeline.console_pipeline import ConsolePipeline
 from fetchman.processor.base_handler import BaseHandler
 from fetchman.processor.base_handler import every
 from fetchman.processor.base_handler import config
@@ -29,9 +30,12 @@ class TestHandler(BaseHandler):
 
             self.crawl(url, callback=self.detail_page)
 
+        return {'url': task['url']}
+
 class TestBaseSpider(unittest.TestCase):
     def test_run(self):
-        BaseSpider().set_scheduler(BaseScheduler()).set_downloader(BaseDownloader()).set_processor(BaseProcessor(handler=TestHandler())).set_pipeline(BasePipeline()).run()
+        # BaseSpider().set_scheduler(BaseScheduler()).set_downloader(BaseDownloader()).set_processor(BaseProcessor(handler=TestHandler())).set_pipeline(BasePipeline()).run()
+        BaseSpider().set_scheduler(BaseScheduler()).set_downloader(BaseDownloader()).set_processor(BaseProcessor(handler=TestHandler())).set_pipeline(ConsolePipeline()).run()
         # BaseSpider().set_scheduler(BaseScheduler()).run()
 
 if __name__ == '__main__':
