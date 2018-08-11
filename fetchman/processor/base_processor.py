@@ -55,7 +55,7 @@ class BaseProcessor(object):
         try:
             processed_result = self._handler.run(task, response)
             if processed_result.result:
-                self._out_queue.put((task, processed_result))
+                self._out_queue.put((task, processed_result.result))
         except Exception:
             logger.error('handler run error, taskid=%(id)s, url=%(url)s', task,
                     exc_info=True)
