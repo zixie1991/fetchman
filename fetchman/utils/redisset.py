@@ -3,7 +3,7 @@
 
 import redis
 
-class ProxyPool(object):
+class RedisSet(object):
     def __init__(self, name='newtask', host='localhost', port=6379, db=0, maxsize=0, lazy_limit=True):
         """
         maxsize:    an integer that sets the upperbound limit on the number of

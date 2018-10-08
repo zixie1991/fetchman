@@ -22,15 +22,17 @@ class BasePipeline(object):
         while not self._stop:
             try:
                 task, result = self._in_queue.get(timeout=0.1)
-                self.on_task(task, result)
+                self.on_result(task, result)
             except queue.Empty:
                 continue
             except KeyboardInterrupt:
                 break
             except Exception:
+                logger.error('pipeline run error, taskid=%(id)s, url=%(url)s',
+                        task, exc_info=True)
                 continue
 
         logger.info('pipeline done')
 
-    def on_task(self, task, result):
+    def on_result(self, task, result):
         pass

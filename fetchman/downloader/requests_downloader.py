@@ -14,7 +14,7 @@ class RequestsClient(object):
                        'headers': {},
                        'allow_redirects': True,
                        'use_gzip': True,
-                       'timeout': 120}
+                       'timeout': 60}
     allowed_options = ['method', 'headers', 'data', 'timeout',
                        'allow_redirects', 'cookies', 'proxy_host', 'proxy_port']
 

@@ -47,5 +47,5 @@ class RandomUserAgent(object):
 
 class RandomMobileUserAgent(RandomUserAgent):
     def __init__(self):
-        self.super(RandomUserAgent, useragent_path=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'downloader/useragent-mobile.list'))
+        super(RandomMobileUserAgent, self).__init__(useragent_path=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'downloader/useragent-mobile.list'))
 

@@ -140,7 +140,7 @@ class Response(object):
         if hasattr(self, '_doc'):
             return self._doc
 
-        elements = self.html()
+        elements = self.html
         doc = self._doc = PyQuery(elements)
         try:
             doc.make_links_absolute(self.url)

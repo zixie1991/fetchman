@@ -7,6 +7,8 @@
 import sys
 import time
 import MySQLdb
+from MySQLdb.cursors import DictCursor
+from DBUtils.PooledDB import PooledDB
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -23,6 +25,7 @@ class MySQLDB(object):
         self.password = password
         self.charset = charset
         self.db = db
+        self._pool = None
 
         self.reconnect()
 
@@ -44,14 +47,18 @@ class MySQLDB(object):
             try:
                 self.reconnect_once()
                 connect_status = True
-            except (Exception, e):
+            except Exception as e:
+                print e
                 print("Mysql error %d: %s" % (e.args[0], e.args[1]))
                 time.sleep(2)
 
     @property
     def connection(self):
         if self._pool is None:
-            self._pool = PooledDB(creator=MySQLdb, mincached=1 , maxcached=20 , host=self.host, port=self.port, user=self.user, passwd=self.password, db=self.dbE, use_unicode=False, charset=self.charset, cursorclass=DictCursor)
+            self._pool = PooledDB(creator=MySQLdb, mincached=1, maxcached=20,
+                    host=self.host, port=self.port, user=self.user,
+                    passwd=self.password, db=self.db, use_unicode=False,
+                    charset=self.charset, cursorclass=DictCursor)
 
         return self._pool.connection()
 
@@ -63,7 +70,7 @@ class MySQLDB(object):
         # 设置编码
         self.conn.set_character_set(self.charset)
         '''
-        self.conn = self.conntion
+        self.conn = self.connection
         # 获取游标
         self.conn.ping(True) # If it has gone down, an automatic reconnection is attempted.
         self.cur = self.conn.cursor()
@@ -82,7 +89,7 @@ class MySQLDB(object):
         '''Select database
         '''
         try:
-            self.conn.select_db(db_name)
+            # self.conn.select_db(db_name)
             self.db_name = db_name
         except (MySQLdb.OperationalError, MySQLdb.InterfaceError):
             self.reconnect()
@@ -137,26 +144,23 @@ class MySQLDB(object):
             return obj
 
         desc = self.dbcur.description
-        result = {}
-
-        for i in range(0, len(obj)):
-            # result[desc[i][0]] = unicode(obj[i])
-            result[desc[i][0]] = unicode(obj[i])
-        return result
+        for k in obj:
+            obj[k] = unicode(obj[k])
+        return obj
 
     def query_all(self, sql, args=None):
         self.execute(sql, args)
-        ret = self.dbcur.fetchall()
+        objs = self.dbcur.fetchall()
         desc = self.dbcur.description
-        d = []
 
-        for inv in ret:
-            _d = {}
-            for i in range(0, len(inv)):
-                _d[desc[i][0]] = unicode(inv[i])
+        if not objs:
+            return objs
 
-            d.append(_d)
-        return d
+        for obj in objs:
+            for k in obj:
+                obj[k] = unicode(obj[k])
+
+        return objs
 
     def insert(self, table, data):
         keys = '`,`'.join(data.keys())
@@ -169,7 +173,7 @@ class MySQLDB(object):
         return self.dbcur.lastrowid
 
     def batch_insert(self, table, data):
-	if not data or len(data) < 0:
+        if not data or len(data) < 0:
             return
         keys = '`,`'.join(data[0].keys())
 

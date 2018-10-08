@@ -17,8 +17,8 @@ logger = logging.getLogger('downloader')
 from fetchman.downloader.selenium_downloader import SeleniumClient
 from fetchman.downloader.requests_downloader import RequestsClient
 from fetchman.downloader.middlewares import DefaultUserAgent
-from fetchman.downloader.proxy_pool import ProxyPool
 from fetchman.utils.urls import parse_dburl
+from fetchman.utils.redisset import RedisSet
 from fetchman import settings
 
 def create_obj(class_name, *args, **kwargs):
@@ -41,6 +41,24 @@ def create_obj(class_name, *args, **kwargs):
     obj = class_meta(*args, **kwargs)
     return obj
 
+class IpExpiration(object):
+    def __init__(self):
+        self._count = 1
+        self._last = time.time()
+
+    def update(self, expiration=5):
+        now = time.time()
+        if now - self._last > expiration:
+            self._count = 1
+        else:
+            self._count += 1
+
+        self._last = now
+
+    def count(self):
+        logger.info('%f %d' % (self._last, self._count))
+        return self._count;
+
 class BaseDownloader(object):
     '''下载器
     '''
@@ -60,6 +78,8 @@ class BaseDownloader(object):
         self._ua = None
         self._cookies = None
         self._selenium_client = None
+        self._timeout_proxies = {}
+        self._invalid_proxies = {}
 
     def set_task_queue(self, task_queue):
         self._task_queue = task_queue
@@ -133,10 +153,13 @@ class BaseDownloader(object):
             options['name'] = options['db']
             del options['db']
 
-            proxy = ProxyPool(options)
+            proxy = RedisSet(**options)
 
         client = RequestsClient(ua=ua, proxy=proxy, cookies=cookies)
         result = client.download(task)
+
+        if proxy:
+            self.check_proxy(task, result, proxy)
 
         return result
 
@@ -169,3 +192,46 @@ class BaseDownloader(object):
 
     def on_result(self, task, result):
         pass
+
+    def check_proxy(self, task, result, proxy_pool):
+        if result['status_code'] == 599:
+            task_fetch = task.get('fetch', {})
+            if task_fetch.get('proxy_host') and task_fetch.get('proxy_port'):
+                proxy = '%s:%s' % (task_fetch['proxy_host'], task_fetch['proxy_port'])
+
+                if proxy not in self._timeout_proxies:
+                    self._timeout_proxies[proxy] = IpExpiration()
+                else:
+                    self._timeout_proxies[proxy].update(expiration=3600)
+
+                logger.info('bad proxy[%s], count=%d', proxy, self._timeout_proxies[proxy].count())
+
+                if self._timeout_proxies[proxy].count() > 5:
+                    del self._timeout_proxies[proxy]
+                    proxy_pool.delete(proxy)
+
+            return
+
+        ban = False
+        if result['status_code'] < 400 and result['status_code'] >= 300 and len(result['content']) < 800:
+            result['status_code'] = 403
+            task_fetch = task.get('fetch', {})
+            if task_fetch.get('proxy_host') and task_fetch.get('proxy_port'):
+                proxy = '%s:%s' % (task_fetch['proxy_host'], task_fetch['proxy_port'])
+                logger.info('abnormal proxy[%s]' % (proxy,))
+
+                if proxy not in self._invalid_proxies:
+                    self._invalid_proxies[proxy] = IpExpiration()
+                else:
+                    self._invalid_proxies[proxy].update(expiration=3600)
+
+                if self._invalid_proxies[proxy].count() > 10:
+                    del self._invalid_proxies[proxy]
+                    ban = True
+
+        if ban or result['status_code'] == 403:
+            task_fetch = task.get('fetch', {})
+            if task_fetch.get('proxy_host') and task_fetch.get('proxy_port'):
+                proxy = '%s:%s' % (task_fetch['proxy_host'], task_fetch['proxy_port'])
+                logger.info('invalid proxy[%s], removed from proxy pool' % (proxy, ))
+                proxy_pool.delete(proxy)

@@ -76,6 +76,9 @@ class BaseHandler(object):
     def _run(self, task, result):
         self._reset()
 
+        # Non-200 response will been regarded as fetch failed and will not pass
+        # to callback.
+        result.raise_for_status()
         callback = task.get('process', {}).get('callback', '__call__')
         if not hasattr(self, callback):
             logger.error("handler run callback [id=%(id)s, url=%(url)s, process=%(process)s] error", task,
@@ -111,7 +114,8 @@ class BaseHandler(object):
             func()
             now = time.time()
             logger.debug('processor run cron job at %f' % now)
-            heapq.heappush(self._funcs, (now + interval, interval, func))
+            if interval > 0:
+                heapq.heappush(self._funcs, (now + interval, interval, func))
 
 
     def crawl(self, url, **kwargs):
