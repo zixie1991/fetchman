@@ -1,0 +1,2 @@
+include requirements.txt README.rst LICENSE
+recursive-include greenar *
