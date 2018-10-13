@@ -9,7 +9,9 @@ import os
 
 from fetchman import init_logger
 from fetchman import load_config
-from fetchman.utils.thread import run_in_subprocess
+# from fetchman.utils.thread import run_in_subprocess
+# 使用多线程模式
+from fetchman.utils.thread import run_in_thread as run_in_subprocess
 from fetchman.utils import redismq
 from fetchman.scheduler.taskdb import TaskDB
 from fetchman import settings

@@ -25,8 +25,8 @@ class RandomUserAgent(object):
         http://www.useragentstring.com/pages/useragentstring.php
     @sa http://www.useragentstring.com/pages/useragentstring.php
     '''
-    user_agent_list = []
     def __init__(self, user_agent='', useragent_path=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'downloader/useragent.list')):
+        self.user_agent_list = []
         self._user_agent = user_agent
         if useragent_path:
             with open(useragent_path, 'r') as f:

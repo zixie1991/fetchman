@@ -4,6 +4,7 @@
 import urlparse
 import time
 import logging
+import copy
 
 logger = logging.getLogger('downloader')
 
@@ -85,7 +86,7 @@ class RequestsClient(object):
             result['original_url'] = url
             result['url'] = response.url or url
             result['headers'] = dict(response.headers)
-            result['content'] = response.content or ''
+            result['content'] = copy.copy(response.content or '')
             result['time'] = time.time() - start_time
             result['cookies'] = response.cookies.get_dict()
             result['save'] = task_fetch.get('save')
@@ -107,11 +108,14 @@ class RequestsClient(object):
 
         task_fetch = task.get('fetch', {})
         options = make_request()
+        options['headers']['Connection'] = 'close'
         # options['hooks'] = dict(response=handle_response)
 
         try:
             response = requests.request(**options)
             result = handle_response(response)
+            response.close()
+            del response
         except Exception as e:
             response = requests.Response()
             response.status_code = 599
@@ -119,5 +123,7 @@ class RequestsClient(object):
             response._content = ''
             result = handle_response(response)
             logger.warning("[%d] %s %s" % (response.status_code, url, str(e)))
+            response.close()
+            del response
 
         return result

@@ -94,9 +94,38 @@ class BaseDownloader(object):
         batch_size = settings.get('downloader', {}).get('batch_size', 10)
         tasks = []
 
+        self.ua = DefaultUserAgent()
+        if settings['downloader']['ua_middleware']:
+            self.ua = create_obj(settings['downloader']['ua_middleware'])
+        self.cookies = None
+        if settings['downloader']['cookies_middleware']:
+            self.cookies = create_obj(settings['downloader']['cookies_middleware'])
+        self.proxy = None
+        if settings['downloader']['proxy_pool']:
+            options = parse_dburl(settings['downloader']['proxy_pool'])
+            options['name'] = options['db']
+            del options['db']
+
+            self.proxy = RedisSet(**options)
+
         while not self._stop:
             if self._result_queue.full():
                 continue
+
+            '''
+            try:
+                task = self._task_queue.get_nowait()
+                self.download(task)
+            except KeyboardInterrupt:
+                break
+            except queue.Empty:
+                time.sleep(0.1)
+                continue
+            except Exception:
+                logger.error('downloader error', exc_info=True)
+                time.sleep(0.1)
+                continue
+            '''
 
             try:
                 task = self._task_queue.get_nowait()
@@ -141,25 +170,11 @@ class BaseDownloader(object):
         self.on_result(task, result)
 
     def http_fetch(self, task):
-        ua = DefaultUserAgent()
-        if settings['downloader']['ua_middleware']:
-            ua = create_obj(settings['downloader']['ua_middleware'])
-        cookies = None
-        if settings['downloader']['cookies_middleware']:
-            cookies = create_obj(settings['downloader']['cookies_middleware'])
-        proxy = None
-        if settings['downloader']['proxy_pool']:
-            options = parse_dburl(settings['downloader']['proxy_pool'])
-            options['name'] = options['db']
-            del options['db']
-
-            proxy = RedisSet(**options)
-
-        client = RequestsClient(ua=ua, proxy=proxy, cookies=cookies)
+        client = RequestsClient(ua=self.ua, proxy=self.proxy, cookies=self.cookies)
         result = client.download(task)
 
-        if proxy:
-            self.check_proxy(task, result, proxy)
+        if self.proxy:
+            self.check_proxy(task, result, self.proxy)
 
         return result
 
