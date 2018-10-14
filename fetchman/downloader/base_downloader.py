@@ -4,6 +4,7 @@
 from six.moves import queue
 import urlparse
 import time
+import copy
 
 import gevent
 from gevent import monkey
@@ -155,7 +156,6 @@ class BaseDownloader(object):
 
     def download(self, task):
         url = task.get('url', 'data:,')
-
         if url.startswith('data:'):
             fetch_type = 'data'
             result = self.data_fetch(task)
@@ -192,10 +192,19 @@ class BaseDownloader(object):
         return result
 
     def js_fetch(self, task):
+        '''
         if not self._selenium_client:
             self._selenium_client = SeleniumClient()
 
         result = self._selenium_client.download(task)
+        '''
+        client = RequestsClient()
+        new_task = copy.deepcopy(task)
+        new_task['url'] = 'http://127.0.0.1:8888'
+        new_task['fetch']['method'] = 'POST'
+        new_task['fetch']['data'] = task
+        logger.info('js_fetch new_task=%s', new_task)
+        result = client.download(new_task)
 
         return result
 

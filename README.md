@@ -12,6 +12,12 @@ ubuntu安装
 ```
 sudo apt-get install -y redis-server
 sudo apt-get install -y mongodb
+sudo apt-get  install phantomjs
+```
+
+启动phantomjs
+```
+phantomjs phantomjs_server.js --disk-cache=true
 ```
 
 关键数据结构
