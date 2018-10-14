@@ -123,7 +123,5 @@ class RequestsClient(object):
             response._content = ''
             result = handle_response(response)
             logger.warning("[%d] %s %s" % (response.status_code, url, str(e)))
-            response.close()
-            del response
 
         return result
