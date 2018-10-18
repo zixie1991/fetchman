@@ -1,0 +1,25 @@
+# pip install -r requirements.txt
+tornado==4.3
+pyquery==1.2.9 # lxml2, http://stackoverflow.com/questions/6504810/how-to-install-lxml-on-ubuntu
+# lxml2, http://stackoverflow.com/questions/6504810/how-to-install-lxml-on-ubuntu
+pycurl==7.19.5.1 # libcurl, curl-config --version, http://stackoverflow.com/questions/21096436/pip-install-pycurl-ssl-backend-error
+chardet==2.3.0
+bitarray==0.3.4 # utils
+pymongo==2.8 # utils
+six==1.9.0 # settings
+beautifulsoup4==4.3.2 # bs4
+MySQL-python==1.2.5 # MySQLdb
+# http://stackoverflow.com/questions/5178292/pip-install-mysql-python-fails-with-environmenterror-mysql-config-not-found
+redis==2.10.3
+umsgpack==0.1.0 # MessagePack: It's like JSON. but fast and small.
+PyYAML==3.11
+requests==2.9.0
+selenium==3.4.1
+PyVirtualDisplay==0.2.1
+msgpack-python==0.4.8
+flask==0.12.1
+flask-script==2.0.5
+gevent==1.2
+greenlet==0.4.13
+pika==0.12.0
+amqp==2.3.2

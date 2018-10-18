@@ -1,0 +1,30 @@
+## General
+
+# Compiled Object files
+*.o
+*.pyc
+
+# Compiled Dynamic libraries
+*.so
+
+# Compiled Static libraries
+*.la
+*.a
+
+# build and bins
+build
+dist
+*.testbin
+*.bin
+*.log.*
+*.log
+
+# Editor temporaries
+*.swp
+*~
+tags
+cscope.*
+
+
+# Cmake generated files
+*.gen.cmake
