@@ -26,6 +26,8 @@ class MySQLDB(object):
         self.charset = charset
         self.db = db
         self._pool = None
+        self._conn = None
+        self.cur = None
 
         self.reconnect()
 
@@ -54,6 +56,7 @@ class MySQLDB(object):
 
     @property
     def connection(self):
+        '''
         if self._pool is None:
             self._pool = PooledDB(creator=MySQLdb, mincached=1, maxcached=20,
                     host=self.host, port=self.port, user=self.user,
@@ -61,16 +64,23 @@ class MySQLDB(object):
                     charset=self.charset, cursorclass=DictCursor)
 
         return self._pool.connection()
+        '''
+        if self._conn is None:
+            self._conn = MySQLdb.connect(host=self.host,
+                    user=self.user,
+                    passwd=self.password,
+                    db=self.db,
+                    port=self.port,
+                    cursorclass=MySQLdb.cursors.DictCursor,
+                    charset=self.charset,
+                    )
+        return self._conn
 
     def reconnect_once(self):
-        '''
-        # self.close()
         # 连接设置
-        self.conn = MySQLdb.connect(host=self.host, port=self.port, user=self.user, passwd=self.password, connect_timeout=self._connect_timeout)
         # 设置编码
-        self.conn.set_character_set(self.charset)
-        '''
         self.conn = self.connection
+        self.conn.autocommit(True)
         # 获取游标
         self.conn.ping(True) # If it has gone down, an automatic reconnection is attempted.
         self.cur = self.conn.cursor()
@@ -89,7 +99,7 @@ class MySQLDB(object):
         '''Select database
         '''
         try:
-            # self.conn.select_db(db_name)
+            self.conn.select_db(db_name)
             self.db_name = db_name
         except (MySQLdb.OperationalError, MySQLdb.InterfaceError):
             self.reconnect()
