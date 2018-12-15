@@ -10,12 +10,14 @@ logger = logging.getLogger('downloader')
 
 import requests
 
+from fetchman.utils.urls import quote_chinese
+
 class RequestsClient(object):
     default_options = {'method': 'GET',
                        'headers': {},
                        'allow_redirects': True,
                        'use_gzip': True,
-                       'timeout': 60}
+                       'timeout': 20}
     allowed_options = ['method', 'headers', 'data', 'timeout',
                        'allow_redirects', 'cookies', 'proxy_host', 'proxy_port']
 
@@ -29,6 +31,7 @@ class RequestsClient(object):
             '''获取HTTPHeaders
             '''
             options = dict(self.default_options)
+            options['timeout'] = (options['timeout'], options['timeout'])
 
             options.setdefault('url', url)
 
@@ -111,17 +114,22 @@ class RequestsClient(object):
         options['headers']['Connection'] = 'close'
         # options['hooks'] = dict(response=handle_response)
 
-        try:
-            response = requests.request(**options)
-            result = handle_response(response)
-            response.close()
-            del response
-        except Exception as e:
-            response = requests.Response()
-            response.status_code = 599
-            response.headers = {}
-            response._content = ''
-            result = handle_response(response)
-            logger.warning("[%d] %s %s" % (response.status_code, url, str(e)))
+        while True:
+            try:
+                response = requests.request(**options)
+                result = handle_response(response)
+                response.close()
+                del response
+                if result['status_code'] in (301, 302, 303, 307) and result['headers'].get('Location'):
+                    options['url'] = quote_chinese(urlparse.urljoin(options['url'], result['headers']['Location']))
+                    continue
 
-        return result
+            except Exception as e:
+                response = requests.Response()
+                response.status_code = 599
+                response.headers = {}
+                response._content = ''
+                result = handle_response(response)
+                logger.warning("[%d] %s %s" % (response.status_code, url, str(e)))
+
+            return result

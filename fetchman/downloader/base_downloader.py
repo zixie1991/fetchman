@@ -231,7 +231,7 @@ class BaseDownloader(object):
                 else:
                     self._invalid_proxies[proxy].update(expiration=3600)
 
-                if self._invalid_proxies[proxy].count() > 10:
+                if self._invalid_proxies[proxy].count() > 5:
                     del self._invalid_proxies[proxy]
                     ban = True
 

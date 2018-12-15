@@ -46,3 +46,9 @@ class RedisSet(object):
 
     def delete_by_name(self, name, value):
         self._redis.srem(name, value)
+
+    def __contains__(self, value):
+        if not self._redis.sismember(self.name, value):
+            return False
+
+        return True

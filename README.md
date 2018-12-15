@@ -17,6 +17,8 @@ sudo apt-get  install phantomjs
 
 启动phantomjs
 ```
+export QT_QPA_PLATFORM=offscreen
+export QT_QPA_FONTDIR=/usr/share/fonts
 phantomjs phantomjs_server.js --disk-cache=true
 ```
 
