@@ -219,7 +219,7 @@ class BaseDownloader(object):
             return
 
         ban = False
-        if result['status_code'] < 400 and result['status_code'] >= 300 and len(result['content']) < 800:
+        if result['status_code'] < 400 and result['status_code'] >= 200 and len(result['content']) < 800:
             result['status_code'] = 403
             task_fetch = task.get('fetch', {})
             if task_fetch.get('proxy_host') and task_fetch.get('proxy_port'):

@@ -177,7 +177,7 @@ class MySQLDB(object):
         values = data.values()
         placeholder = ','.join(['%s' for v in values])
 
-        sql = 'replace INTO %(table)s (`%(keys)s`) VALUES (%(placeholder)s)'
+        sql = 'insert ignore INTO %(table)s (`%(keys)s`) VALUES (%(placeholder)s)'
 
         self.execute(sql % locals(), values)
         return self.dbcur.lastrowid

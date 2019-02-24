@@ -65,7 +65,13 @@ class BaseHandler(object):
         pass
 
     def run(self, task, result):
-        processed_result = self._run(task, result)
+        try:
+            processed_result = self._run(task, result)
+        except:
+            logger.error("parse list error, [taskid=%(id)s, url=%(url)s]",
+                          task, exc_info=True)
+            processed_result = None
+
         self.on_result(processed_result)
 
         return HandleResult(processed_result, self._follows)
