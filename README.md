@@ -12,7 +12,8 @@ ubuntu安装
 ```
 sudo apt-get install -y redis-server
 sudo apt-get install -y mongodb
-sudo apt-get  install phantomjs
+sudo apt-get install -y phantomjs
+sudo apt-get install -y libxml2-dev libxslt1-dev libmysqlclient-dev libssl-dev
 ```
 
 启动phantomjs
