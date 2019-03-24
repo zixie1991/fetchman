@@ -114,6 +114,7 @@ class RequestsClient(object):
         options['headers']['Connection'] = 'close'
         # options['hooks'] = dict(response=handle_response)
 
+        max_redirects = task_fetch.get('max_redirects', 5)
         while True:
             try:
                 response = requests.request(**options)
@@ -122,7 +123,9 @@ class RequestsClient(object):
                 del response
                 if result['status_code'] in (301, 302, 303, 307) and result['headers'].get('Location'):
                     options['url'] = quote_chinese(urlparse.urljoin(options['url'], result['headers']['Location']))
-                    continue
+                    max_redirects -= 1
+                    if max_redirects > 0:
+                        continue
 
             except Exception as e:
                 response = requests.Response()

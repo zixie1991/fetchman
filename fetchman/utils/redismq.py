@@ -32,6 +32,8 @@ class RedisQueue(object):
         self.lazy_limit = lazy_limit
         self.last_qsize = 0
 
+        self.init()
+
     def init(self):
         # 清除队列之前的数据
         self.redis.delete(self.name)

@@ -25,6 +25,11 @@ class RedisTaskQueue(object):
         # self._redis = redis.StrictRedis(host=host, port=port)
         pool = redis.ConnectionPool(host=host, port=port, db=0)
         self._redis = redis.Redis(connection_pool=pool)
+        self.init()
+
+    def init(self):
+        # 清除队列之前的数据
+        self._redis.delete(self._name)
 
     def put(self, taskid, priority=0, exetime=0):
         self._redis.zadd(self._name, taskid, priority)
