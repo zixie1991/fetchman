@@ -5,12 +5,15 @@ import urlparse
 import time
 import logging
 import copy
+import traceback
+import sys
 
 logger = logging.getLogger('downloader')
 
 import requests
 
 from fetchman.utils.urls import quote_chinese
+from fetchman.utils import string
 
 class RequestsClient(object):
     default_options = {'method': 'GET',
@@ -133,6 +136,8 @@ class RequestsClient(object):
                 response.headers = {}
                 response._content = ''
                 result = handle_response(response)
+                result['error'] = string.text(e),
+                result['traceback'] = traceback.format_exc() if sys.exc_info()[0] else None
                 logger.warning("[%d] %s %s" % (response.status_code, url, str(e)))
 
             return result
