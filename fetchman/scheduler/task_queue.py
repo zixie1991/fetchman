@@ -25,7 +25,8 @@ class RedisTaskQueue(object):
         # self._redis = redis.StrictRedis(host=host, port=port)
         pool = redis.ConnectionPool(host=host, port=port, db=0)
         self._redis = redis.Redis(connection_pool=pool)
-        self.init()
+        if options.get('init'):
+            self.init()
 
     def init(self):
         # 清除队列之前的数据
@@ -58,3 +59,12 @@ class RedisTaskQueue(object):
             return False
 
         return True
+
+    def fail(self):
+        # 淘汰优先级的数据
+        taskid = self._redis.zrevrange(self._name, 0, 0)
+        if taskid:
+            taskid = taskid[0]
+
+        if taskid:
+            self._redis.zrem(self._name, taskid)

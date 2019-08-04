@@ -29,6 +29,7 @@ class BaseScheduler(object):
         self._send_queue = deque()
         self._stop = True
         self._last_tick = 0
+        self._last_taskdb_tick = 0
 
     def set_taskdb(self, taskdb):
         self._taskdb = taskdb
@@ -45,6 +46,11 @@ class BaseScheduler(object):
     def run(self):
         self._stop = False
         logger.info('start scheduler')
+
+        # for task in self._taskdb.load(status=self._taskdb.ACTIVE):
+            # schedule = task.get('schedule', self.default_schedule)
+            # self._task_queue.put(task['id'], priority=schedule.get('priority', 0),
+                                # exetime=schedule.get('exetime', 0))
 
         while not self._stop:
             try:
@@ -69,10 +75,10 @@ class BaseScheduler(object):
         """
         count = 0
         try:
-            while count < self.LOOP_LIMIT:
+            while 1:
                 task = self._donetask_queue.get_nowait()
                 logger.debug('scheduler get done task [id=%(id)s, url=%(url)s]'
-                          % task)
+                            % task)
                 self.on_task_done(task)
                 count += 1
         except queue.Empty:
@@ -208,6 +214,17 @@ class BaseScheduler(object):
         except queue.Empty:
             pass
 
+        now = time.time()
+        if count == 0 and now - self._last_taskdb_tick > 300:
+            self._last_taskdb_tick = now
+            for task in self._taskdb.load(status=self._taskdb.FAILED, count=self.LOOP_LIMIT - count):
+                self.on_task_select(task)
+                count += 1
+
+            for task in self._taskdb.load(status=self._taskdb.BAN, count=self.LOOP_LIMIT - count):
+                self.on_task_select(task)
+                count += 1
+
         return count
 
     def on_task_select(self, task):
@@ -221,8 +238,9 @@ class BaseScheduler(object):
         """
         logger.debug("scheduler put task [id=%(id)s, url=%(url)s]" % task)
         try:
-            self._out_queue.put(task)
+            self._out_queue.put(task, timeout=1)
         except queue.Full:
+            self._task_queue.fail() # 限流
             if force:
                 self._send_queue.appendleft(task)
             else:

@@ -16,7 +16,7 @@ class RedisQueue(object):
     Full = queue.Full
     max_timeout = 0.3
 
-    def __init__(self, name='newtask', host='localhost', port=6379, db=0, maxsize=0, lazy_limit=True):
+    def __init__(self, name='newtask', host='localhost', port=6379, db=0, maxsize=10000, lazy_limit=True, init=False):
         """
         Constructor for RedisQueue
         maxsize:    an integer that sets the upperbound limit on the number of
@@ -32,9 +32,11 @@ class RedisQueue(object):
         self.lazy_limit = lazy_limit
         self.last_qsize = 0
 
-        self.init()
+        # self.init()
+        if init:
+            self._init()
 
-    def init(self):
+    def _init(self):
         # 清除队列之前的数据
         self.redis.delete(self.name)
 
@@ -76,7 +78,7 @@ class RedisQueue(object):
                     if timeout > lasted:
                         time.sleep(min(self.max_timeout, timeout - lasted))
                     else:
-                        raise
+                        raise self.Full
                 else:
                     time.sleep(self.max_timeout)
 

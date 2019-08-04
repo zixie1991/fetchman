@@ -4,6 +4,8 @@
 import json
 from urlparse import urlparse
 import time
+import logging
+log = logging.getLogger("scheduler")
 
 from fetchman.utils.mongodb import MongoDBClient
 from fetchman.utils.urls import parse_dburl
@@ -50,28 +52,34 @@ class TaskDB(object):
         self._client.coll.ensure_index('id')
         self._client.coll.ensure_index('status')
 
-    def load(self, status=None):
+    def load(self, status=None, count=-1):
         offset = 0
         limit = 1000
 
-        if status is None:
-            count = self._client.count_all()
-        else:
-            count = self._client.count_all({'status': status})
+        if count < 0:
+            if status is None:
+                count = self._client.count_all()
+            else:
+                count = self._client.count_all({'status': status})
+        log.info('load count=%s' % (count, ))
 
         while 1:
             if offset > count:
                 break
 
-            logging.info('load offset=%s, limit=%s' % (offset, limit))
+            log.info('load offset=%s, limit=%s' % (offset, limit))
             if status is None:
                 tasks = self._client.find(offset=offset, limit=limit)
             else:
                 tasks = self._client.find({'status': status}, offset=offset,
                                           limit=limit)
 
+            log.info('load done offset=%s, limit=%s' % (offset, limit))
             for task in tasks:
                 yield self._parse(task)
+
+            if not tasks:
+                break
 
             offset += limit
 
@@ -92,7 +100,7 @@ class TaskDB(object):
         try:
             self._client.update_set({'id': task.get('id')},
                     self._stringify(task))
-        except (Exception, e):
+        except Exception as e:
             print('update task {id: ' + task.get('id') + '}', e)
 
     def size(self, status=None):

@@ -91,11 +91,34 @@ class BaseDownloader(object):
 
             self.proxy = RedisSet(**options)
 
+        def gevent_func():
+            while not self._stop:
+                if self._result_queue.full():
+                    gevent.sleep(0.5)
+                    continue
+
+                try:
+                    task = self._task_queue.get_nowait()
+                    self.download(task)
+                except KeyboardInterrupt:
+                    break
+                except queue.Empty:
+                    gevent.sleep(0.5)
+                    continue
+                except Exception:
+                    logger.error('downloader error', exc_info=True)
+                    gevent.sleep(0.1)
+                    continue
+
+        gevent.joinall([gevent.spawn(gevent_func) for _ in range(batch_size)])
+
+
+        '''
         while not self._stop:
             if self._result_queue.full():
+                time.sleep(0.1)
                 continue
 
-            '''
             try:
                 task = self._task_queue.get_nowait()
                 self.download(task)
@@ -108,7 +131,13 @@ class BaseDownloader(object):
                 logger.error('downloader error', exc_info=True)
                 time.sleep(0.1)
                 continue
-            '''
+        '''
+
+        '''
+        while not self._stop:
+            if self._result_queue.full():
+                time.sleep(0.1)
+                continue
 
             try:
                 task = self._task_queue.get_nowait()
@@ -130,6 +159,8 @@ class BaseDownloader(object):
                 logger.error('downloader error', exc_info=True)
                 time.sleep(0.1)
                 continue
+        '''
+
 
         logger.info('downloader done')
 

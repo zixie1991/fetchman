@@ -37,7 +37,7 @@ class BaseProcessor(object):
 
         while not self._stop:
             try:
-                task, result = self._in_queue.get(timeout=0.1)
+                task, result = self._in_queue.get(timeout=1)
                 self.on_result(task, result)
             except queue.Empty:
                 continue
