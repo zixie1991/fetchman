@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block title %}{{project.name}}_项目详情{% endblock %}
+{% block style %}
+<meta name="keywords" content="">
+<meta name="description" content="">
+{% endblock %}
+{% block content %}
+<div class="container ">
+	<div class="section-box">
+		<div class="section-title">项目详情
+        </div>
+		<div class="section-content ">
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="{{url_for('project.get_projects')}}">首页</a></li>
+					<li class="breadcrumb-item active" aria-current="page">{{project.project_id}}</li>
+				</ol>
+			</nav>
+			<p></p>
+			<p>
+            <span class="c-gray">项目名：</span><span class="c-text">{{project.project_id}}</span>&nbsp;<a class="c-link" href="{{url_for('task.get_tasks', project_id=project.project_id)}}">详情</a>
+            </p>
+            <p>
+            <span class="c-gray">网站：</span><span class="c-text">{{project.name}}</span>
+            </p>
+            <p>
+            <span class="c-gray">网址：</span><span class="c-text">{{project.url}}</span>
+            </p>
+            <p>
+            <span class="c-gray">任务：</span><span class="c-text">{{project.task_count}}</span>
+            </p>
+            <p>
+            <span class="c-gray">未完成：</span><span class="c-text">{{project.task_status[1]}}</span>
+            </p>
+            <p>
+            <span class="c-gray">已完成：</span><span class="c-text">{{project.task_status[2]}}</span>
+            </p>
+            <p>
+            <span class="c-gray">403错误：</span><span class="c-text">{{project.task_status[3]}}</span>
+            </p>
+            <p>
+            <span class="c-gray">404错误：</span><span class="c-text">{{project.task_status[4]}}</span>
+            </p>
+            <p>
+            <span class="c-gray">500错误：</span><span class="c-text">{{project.task_status[5]}}</span>
+			</p>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block script %}
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %}{{task.id}}_任务详情{% endblock %}
+{% block style %}
+<meta name="keywords" content="">
+<meta name="description" content="">
+{% endblock %}
+{% block content %}
+<div class="container ">
+	<div class="section-box">
+		<div class="section-title">任务详情
+        </div>
+		<div class="section-content ">
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="{{url_for('project.get_projects')}}">首页</a></li>
+					<li class="breadcrumb-item"><a href="{{url_for('task.get_tasks', project_id=project_id)}}">{{project_id}}</a></li>
+					<li class="breadcrumb-item active" aria-current="page">{{task.id}}</li>
+				</ol>
+			</nav>
+			<p></p>
+
+            <p><span class="c-gray">任务id：</span><span class="c-text">{{task.id}}</span></p>
+            <p><span class="c-gray">status：</span><span class="c-text">{{task.status}}</span></p>
+            <p><span class="c-gray">updatetime：</span><span class="c-text">{{task.updatetime}} ({{task.updatetime|datetime_format('%Y-%m-%d %H:%M:%S')}})</span></p>
+            <p><span class="c-gray">url：</span><a class="c-link" target="_blank" href="{{task.url}}">{{task.url}}</a></p>
+            <p><span class="c-gray">schedule：</span><pre>{% if task.get('schedule') %}{{json.dumps(task.schedule, indent=2, ensure_ascii=False)}}{% endif %}</pre></p>
+            <p><span class="c-gray">fetch：</span><pre>{% if task.get('fetch') %}{{json.dumps(task.fetch, indent=2, ensure_ascii=False)}}{% endif %}</pre></p>
+            <p><span class="c-gray">processor：</span><pre>{% if task.get('processor') %}{{json.dumps(task.processor, indent=2, ensure_ascii=False)}}{% endif %}</pre></p>
+            <p><span class="c-gray">track：</span><pre>{% if task.get('track') %}{{json.dumps(task.track, indent=2, ensure_ascii=False)}}{% endif %}</pre></p>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block script %}
+{% endblock %}

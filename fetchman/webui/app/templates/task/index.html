@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block title %}任务管理{% endblock %}
+{% block style %}
+<meta name="keywords" content="">
+<meta name="description" content="">
+{% endblock %}
+{% block content %}
+<div class="container ">
+
+	<div class="section-box">
+		<div class="section-title">任务管理
+        </div>
+		<div class="section-content ">
+			<nav aria-label="breadcrumb">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a href="{{url_for('project.get_projects')}}">首页</a></li>
+					<li class="breadcrumb-item"><a href="{{url_for('task.get_tasks', project_id=project_id)}}">{{project_id}}</a></li>
+					<li class="breadcrumb-item active" aria-current="page">第{{offset//limit+1}}页</li>
+				</ol>
+			</nav>
+			<p></p>
+
+			<table class="table">
+				<thead>
+					<tr>
+					<th scope="col">#</th>
+					<th scope="col">链接</th>
+					<th scope="col">状态</th>
+					<th scope="col">时间</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for task in tasks %}
+					<tr>
+						<th scope="row"><a href="{{url_for('task.get_task', task_id=task.id, project_id=project.project_id)}}">{{task.id}}</a></th>
+						<td><a class="c-link" href="{{task.url}}">{{task.url}}</a></td>
+						<td>{{task.status}}</td>
+						<td>{{task.updatetime}} ({{task.updatetime|datetime_format('%Y-%m-%d %H:%M:%S')}})</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			<nav aria-label="Page navigation ">
+				<ul class="pagination">
+					<li class="page-item"><a class="page-link" {% if offset > limit %}href="{{url_for('task.get_tasks', project_id=project_id, offset=offset-limit)}}"{% else %} disalbed{% endif %}>上一页</a></li>
+					<li class="page-item"><a class="page-link" {% if tasks %}href="{{url_for('task.get_tasks', project_id=project_id, offset=offset+limit)}}{% else %} disabled{% endif %}">下一页</a></li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block script %}
+{% endblock %}
