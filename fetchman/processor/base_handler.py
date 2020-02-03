@@ -82,9 +82,9 @@ class BaseHandler(object):
     def _run(self, task, result):
         self._reset()
 
-        # Non-200 response will been regarded as fetch failed and will not pass
-        # to callback.
-        result.raise_for_status()
+        # do not run_func when 304
+        if result.status_code == 304:
+            result.raise_for_status()
         callback = task.get('process', {}).get('callback', '__call__')
         if not hasattr(self, callback):
             logger.error("handler run callback [id=%(id)s, url=%(url)s, process=%(process)s] error", task,
