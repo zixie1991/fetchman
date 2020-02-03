@@ -12,8 +12,6 @@ class RedisSet(object):
                     used for better performance.
         """
         self.name = name
-        self.hash_name = '%s_hash' % self.name
-        self.list_name = '%s_list' % self.name
         # self.redis = redis.StrictRedis(host=host, port=port, db=db)
         pool = redis.ConnectionPool(host=host, port=port, db=0)
         self._redis = redis.Redis(connection_pool=pool)
@@ -23,44 +21,28 @@ class RedisSet(object):
 
     def init(self):
         # 清除队列之前的数据
-        self._redis.delete(self.hash_name)
-        self._redis.delete(self.list_name)
+        self._redis.delete(self.name)
 
     def get(self):
-        return self.get_by_name(self.name)
-
-    def put(self, value):
-        self.put_by_name(self.name, value)
-
-    def delete(self, value):
-        self.delete_by_name(self.name, value)
-
-    def get_by_name(self, name):
-        hash_name = '%s_hash' % name
-        list_name = '%s_list' % name
-        value = self._redis.lpop(list_name)
+        value = self._redis.srandmember(name=self.name)
         if value is None:
             return ''
+        return value
 
-        if self._redis.hexists(hash_name, value):
-            self._redis.rpush(list_name, value)
-            return value
+    def put(self, value):
+        self._redis.sadd(self.name, value)
 
-        return ''
+    def delete(self, value):
+        self._redis.srem(self.name, value)
+
+    def get_by_name(self, name):
+        value = self._redis.srandmember(name=name)
+        if value is None:
+            return ''
+        return value
 
     def put_by_name(self, name, value):
-        hash_name = '%s_hash' % name
-        list_name = '%s_list' % name
-        self._redis.hset(hash_name, value, 0)
-        self._redis.rpush(list_name, value)
+        self._redis.sadd(name, value)
 
     def delete_by_name(self, name, value):
-        hash_name = '%s_hash' % name
-        list_name = '%s_list' % name
-        self._redis.hdel(hash_name, value)
-
-    def __contains__(self, value):
-        if not self._redis.hexists(self.hash_name, value):
-            return False
-
-        return True
+        self._redis.srem(name, value)
