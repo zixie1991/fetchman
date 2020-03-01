@@ -161,7 +161,7 @@ class BaseHandler(object):
         # fetch
         fetch = {}
         for key in ('method', 'headers', 'data', 'timeout', 'allow_redirects',
-                    'cookies', 'proxy', 'last_modifed', 'save', 'etag',
+                    'cookies', 'proxy_host', 'proxy_port', 'last_modifed', 'save', 'etag',
                     'last_modified', 'download_delay', 'fetch_type'):
             if key in kwargs and kwargs[key]:
                 fetch[key] = kwargs[key]
