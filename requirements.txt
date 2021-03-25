@@ -12,7 +12,7 @@ MySQL-python==1.2.5 # MySQLdb
 # http://stackoverflow.com/questions/5178292/pip-install-mysql-python-fails-with-environmenterror-mysql-config-not-found
 redis==2.10.3
 umsgpack==0.1.0 # MessagePack: It's like JSON. but fast and small.
-PyYAML==3.11
+PyYAML==5.4
 requests==2.9.0
 selenium==3.4.1
 PyVirtualDisplay==0.2.1
