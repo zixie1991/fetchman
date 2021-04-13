@@ -33,6 +33,10 @@ class BaseSpider(object):
         self._processor = None
         self._pipeline = None
 
+        self._downloader_num = settings['downloader'].get('downloader_num', 2)
+        self._processor_num = settings['processor'].get('processor_num', 5)
+        self._pipeline_num = settings['pipeline'].get('pipeline_num', 5)
+
         self._threads = []
         self._stop = True
 
@@ -69,7 +73,8 @@ class BaseSpider(object):
 
             def run_downloader():
                 self._downloader.run()
-            self._threads.append(run_in_subprocess(run_downloader))
+            for i in range(self._downloader_num):
+                self._threads.append(run_in_subprocess(run_downloader))
 
         if self._processor:
             self._processor.set_in_queue(self._downloader_to_processor)
@@ -79,14 +84,16 @@ class BaseSpider(object):
 
             def run_processor():
                 self._processor.run()
-            self._threads.append(run_in_subprocess(run_processor))
+            for i in range(self._processor_num):
+                self._threads.append(run_in_subprocess(run_processor))
 
         if self._pipeline:
             self._pipeline.set_in_queue(self._processor_to_pipeline)
 
             def run_pipeline():
                 self._pipeline.run()
-            self._threads.append(run_in_subprocess(run_pipeline))
+            for i in range(self._pipeline_num):
+                self._threads.append(run_in_subprocess(run_pipeline))
 
         self._stop = False
         while not self._stop:

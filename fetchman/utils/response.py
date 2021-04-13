@@ -135,6 +135,18 @@ class Response(object):
         return self._json
 
     @property
+    def xml(self):
+        """Returns the xml-encoded content of a request, if any."""
+        if hasattr(self, '_xml'):
+            return self._xml
+
+        try:
+            self._xml = lxml.etree.fromstring(self.content)
+        except ValueError:
+            self._xml = None
+        return self._xml
+
+    @property
     def doc(self):
         """Returns a PyQuery object of the response's content"""
         if hasattr(self, '_doc'):
@@ -164,6 +176,8 @@ class Response(object):
             # try fromstring without encoding instead.
             # on windows, unicode is not availabe as encoding for lxml
             elements = lxml.html.fromstring(self.text)
+        except:
+            elements = lxml.html.fromstring(self.content)
 
         _html = self._html = elements
 
