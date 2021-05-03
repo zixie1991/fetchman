@@ -200,7 +200,7 @@ class BaseDownloader(object):
         result['url'] = url
         result['content'] = ''
         result['time'] = 0
-        result['save'] = task.get('fetch', {}).get('save')
+        result['save'] = copy.deepcopy(task.get('fetch', {}).get('save'))
 
         return result
 

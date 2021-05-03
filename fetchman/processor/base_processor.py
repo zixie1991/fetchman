@@ -4,6 +4,7 @@ from six.moves import queue
 
 import logging
 import time
+import copy
 
 logger = logging.getLogger('processor')
 
@@ -65,7 +66,7 @@ class BaseProcessor(object):
         if processed_result.follows:
             for each in (processed_result.follows[x:x + 1000] for x in range(0, len(processed_result.follows), 1000)):
                 logger.debug('processor put new task [id=%(id)s, url=%(url)s]', task)
-                self._newtask_queue.put([newtask for newtask in each])
+                self._newtask_queue.put([copy.deepcopy(newtask) for newtask in each])
 
         track_headers = {}
 
@@ -84,7 +85,7 @@ class BaseProcessor(object):
                 'track': {
                     'fetch': {'ok': response.isok(),
                         'status_code': response.status_code,
-                        'headers': track_headers,
+                        'headers': copy.deepcopy(track_headers),
                         'encoding': response.encoding,
                         'time': response.time,
                                     },

@@ -33,7 +33,7 @@ class RequestsClient(object):
         def make_request():
             '''获取HTTPHeaders
             '''
-            options = dict(self.default_options)
+            options = copy.deepcopy(dict(self.default_options))
             options['timeout'] = (options['timeout'], options['timeout'])
 
             options.setdefault('url', url)
@@ -91,11 +91,11 @@ class RequestsClient(object):
             result['status_code'] = response.status_code
             result['original_url'] = url
             result['url'] = response.url or url
-            result['headers'] = dict(response.headers)
+            result['headers'] = copy.deepcopy(dict(response.headers))
             result['content'] = copy.copy(response.content or '')
             result['time'] = time.time() - start_time
             result['cookies'] = response.cookies.get_dict()
-            result['save'] = task_fetch.get('save')
+            result['save'] = copy.deepcopy(task_fetch.get('save'))
 
             # retry fetch
             if response.status_code == 599:

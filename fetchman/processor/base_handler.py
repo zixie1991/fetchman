@@ -6,6 +6,7 @@ import inspect
 import time
 import heapq
 import functools
+import copy
 from six import add_metaclass
 
 logger = logging.getLogger('processor')
@@ -166,7 +167,7 @@ class BaseHandler(object):
             if key in kwargs and kwargs[key]:
                 fetch[key] = kwargs[key]
         if fetch:
-            task['fetch'] = fetch
+            task['fetch'] = copy.deepcopy(fetch)
 
         # process
         process = {}
@@ -174,7 +175,7 @@ class BaseHandler(object):
             if key in kwargs and kwargs[key]:
                 process[key] = kwargs[key]
         if process:
-            task['process'] = process
+            task['process'] = copy.deepcopy(process)
 
         self._follows.append(task)
 
